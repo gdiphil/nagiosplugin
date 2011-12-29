@@ -1,5 +1,5 @@
 require "nagiosplugin/version"
 
-module Nagiosplugin
+module NagiosPlugin
   # Your code goes here...
 end

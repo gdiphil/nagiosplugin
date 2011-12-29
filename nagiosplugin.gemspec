@@ -4,7 +4,7 @@ require "nagiosplugin/version"
 
 Gem::Specification.new do |s|
   s.name        = "nagiosplugin"
-  s.version     = Nagiosplugin::VERSION
+  s.version     = NagiosPlugin::VERSION
   s.authors     = ["Björn Albers"]
   s.email       = ["bjoernalbers@googlemail.com"]
   s.homepage    = "https://github.com/bjoernalbers/nagiosplugin"

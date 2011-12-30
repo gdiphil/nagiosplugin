@@ -4,6 +4,7 @@ Feature: Plugin Output
 	As a sysadmin building my own nagios plugins
 	I want to return a nagios compatible plugin output
 
+
 	Scenario Outline: CRITICAL, WARNING and OK
 		Given a file named "check_foo" with:
 			"""
@@ -16,17 +17,15 @@ Feature: Plugin Output
 			"""
 		When I run `ruby check_foo`
 		Then the exit status should be <code>
-		And the stdout should contain:
-			"""
-			FOO <status>
-			
-			"""
+		And the stdout should contain "FOO <status>"
+		
 		Examples:
 		 | crit  | warn  | code | status   |
 		 | true  | true  | 2    | CRITICAL |
 		 | true  | false | 2    | CRITICAL |
 		 | false | true  | 1    | WARNING  |
 		 | false | false | 0    | OK       |
+
 
 	Scenario Outline: UNKNOWN when all status checks return false
 		Given a file named "check_bar" with:
@@ -41,17 +40,13 @@ Feature: Plugin Output
 			"""
 		When I run `ruby check_bar`
 		Then the exit status should be <code>
-		# And the stdout should contain exactly:
-		And the stdout should contain:
-			"""
-			BAR <status>
-			
-			"""
+		And the stdout should contain "BAR <status>"
+		
 		Examples:
 		 | ok    | code | status                                     |
 		 | true  | 0    | OK                                         |
-		 | false | 3    | UNKNOWN                                    |
-		 # | false | 3    | UNKNOWN: All status checks returned false! |
+		 | false | 3    | UNKNOWN: All status checks returned false! |
+
 
 	Scenario: UNKNOWN when an exception was raised
 		Given a file named "check_baz" with:
@@ -66,7 +61,5 @@ Feature: Plugin Output
 			"""
 		When I run `ruby check_baz`
 		Then the exit status should be 3
-		And the stdout should contain:
-			"""
-			BAZ UNKNOWN
-			"""
+		And the stdout should contain "BAZ UNKNOWN: OOPS!"
+

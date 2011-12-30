@@ -11,6 +11,7 @@ NagiosPlugin is a simple framework for writing [Nagios](http://www.nagios.org/) 
 Create your executable plugin (which will be called by nagios), `require "nagiosplugin"` and subclass from `NagiosPlugin::Plugin`.
 You must define the methods `critical?` and `warning?` which determine the plugin status during a check based on their boolean return value (`ok?` returns true by default but can be overwritten).
 The optional method `measure` will be called *first* on every check to take samples.
+Additional plugin output can be assigned to `@info_text`.
 Run `check!` on your *class* to ensure a proper plugin output (= stdout & exit status).
 
 Here's a simple example plugin named `check_u2d`:

@@ -1,8 +1,8 @@
-Feature: Status
+Feature: Plugin Output
 
 	In order to comply with official nagios plugin development guidelines
-	As a sysadmin building my own Nagios Plugins
-	I want to return the status in a nagios compatible output
+	As a sysadmin building my own nagios plugins
+	I want to return a nagios compatible plugin output
 
 	Scenario Outline: CRITICAL, WARNING and OK
 		Given a file named "check_foo" with:

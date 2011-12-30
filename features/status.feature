@@ -15,21 +15,20 @@ Feature: Status
 			Foo.check!
 			"""
 		When I run `ruby check_foo`
-		Then the exit status should be <exit>
-		# And the stdout should contain exactly:
+		Then the exit status should be <code>
 		And the stdout should contain:
 			"""
-			<stdout>
+			FOO <status>
 			
 			"""
 		Examples:
-		 | crit  | warn  | exit | stdout   |
+		 | crit  | warn  | code | status   |
 		 | true  | true  | 2    | CRITICAL |
 		 | true  | false | 2    | CRITICAL |
 		 | false | true  | 1    | WARNING  |
 		 | false | false | 0    | OK       |
 
-	Scenario Outline: UNKNOWN when all status checks are false
+	Scenario Outline: UNKNOWN when all status checks return false
 		Given a file named "check_bar" with:
 			"""
 			require 'nagiosplugin'
@@ -41,16 +40,33 @@ Feature: Status
 			Bar.check!
 			"""
 		When I run `ruby check_bar`
-		Then the exit status should be <exit>
+		Then the exit status should be <code>
 		# And the stdout should contain exactly:
 		And the stdout should contain:
 			"""
-			<stdout>
+			BAR <status>
 			
 			"""
 		Examples:
-		 | ok    | exit | stdout                                          |
-		 | true  | 0    | OK                                              |
-		 | false | 3    | UNKNOWN: crit? warn? and ok? all returned false |
+		 | ok    | code | status                                     |
+		 | true  | 0    | OK                                         |
+		 | false | 3    | UNKNOWN                                    |
+		 # | false | 3    | UNKNOWN: All status checks returned false! |
 
 	Scenario: UNKNOWN when an exception was raised
+		Given a file named "check_baz" with:
+			"""
+			require 'nagiosplugin'
+			class Baz < NagiosPlugin::Plugin
+				def critical?
+					raise "OOPS!"
+				end
+			end
+			Baz.check!
+			"""
+		When I run `ruby check_baz`
+		Then the exit status should be 3
+		And the stdout should contain:
+			"""
+			BAZ UNKNOWN
+			"""

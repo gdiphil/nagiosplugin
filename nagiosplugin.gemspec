@@ -4,7 +4,7 @@ require "nagiosplugin/version"
 
 Gem::Specification.new do |s|
   s.name        = "nagiosplugin"
-  s.version     = Nagiosplugin::VERSION
+  s.version     = NagiosPlugin::VERSION
   s.authors     = ["Björn Albers"]
   s.email       = ["bjoernalbers@googlemail.com"]
   s.homepage    = "https://github.com/bjoernalbers/nagiosplugin"
@@ -16,7 +16,8 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  # specify any dependencies here; for example:
-  # s.add_development_dependency "rspec"
-  # s.add_runtime_dependency "rest-client"
+  s.add_development_dependency "rake"
+  s.add_development_dependency "cucumber"
+  s.add_development_dependency "aruba"
+  s.add_development_dependency 'guard-cucumber'
 end

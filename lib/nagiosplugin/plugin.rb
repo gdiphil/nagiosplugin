@@ -33,7 +33,7 @@ module NagiosPlugin
     end
     
     def prefix
-      "#{self.class.name.upcase} #{status.upcase}:"
+      "#{self.class.name.upcase} #{status.to_s.upcase}:"
     end
     
     def code

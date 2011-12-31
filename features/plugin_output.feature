@@ -4,20 +4,14 @@ Feature: Plugin Output
 	As a sysadmin building my own nagios plugins
 	I want to return a nagios compatible plugin output
 
-
 	Scenario Outline: CRITICAL, WARNING and OK
-		Given a file named "check_foo" with:
+		When I run a plugin with the following methods:
 			"""
-			require 'nagiosplugin'
-			class Foo < NagiosPlugin::Plugin
-	      def critical?;	<crit>	end
-	      def warning?;		<warn>	end
-	    end
-			Foo.check!
+	    def critical?;	<crit>	end
+	    def warning?;		<warn>	end
 			"""
-		When I run `ruby check_foo`
 		Then the exit status should be <code>
-		And the stdout should contain "FOO <status>"
+		And the plugin should print "<status>"
 		
 		Examples:
 		 | crit  | warn  | code | status   |
@@ -26,40 +20,27 @@ Feature: Plugin Output
 		 | false | true  | 1    | WARNING  |
 		 | false | false | 0    | OK       |
 
-
 	Scenario Outline: UNKNOWN when all status checks return false
-		Given a file named "check_bar" with:
+		When I run a plugin with the following methods:
 			"""
-			require 'nagiosplugin'
-			class Bar < NagiosPlugin::Plugin
-  		  def critical?;	false		end
-  		  def warning?;		false		end
-				def ok?;				<ok>		end
-  		end
-			Bar.check!
+  		def critical?;	false		end
+  		def warning?;		false		end
+			def ok?;				<ok>		end
 			"""
-		When I run `ruby check_bar`
 		Then the exit status should be <code>
-		And the stdout should contain "BAR <status>"
+		And the plugin should print "<status>"
 		
 		Examples:
 		 | ok    | code | status                                     |
 		 | true  | 0    | OK                                         |
 		 | false | 3    | UNKNOWN: All status checks returned false! |
 
-
 	Scenario: UNKNOWN when an exception was raised
-		Given a file named "check_baz" with:
+		When I run a plugin with the following methods:
 			"""
-			require 'nagiosplugin'
-			class Baz < NagiosPlugin::Plugin
-				def critical?
-					raise "OOPS!"
-				end
+			def critical?
+				raise "OOPS!"
 			end
-			Baz.check!
 			"""
-		When I run `ruby check_baz`
 		Then the exit status should be 3
-		And the stdout should contain "BAZ UNKNOWN: OOPS!"
-
+		And the plugin should print "UNKNOWN: OOPS!"

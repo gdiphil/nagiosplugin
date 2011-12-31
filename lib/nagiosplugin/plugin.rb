@@ -6,38 +6,49 @@ module NagiosPlugin
     :unknown  => 3,
   }
   
+  PluginError = Class.new(StandardError)
+  
   class Plugin
     def self.check!
       plugin = self.new
       plugin.check
-    ensure
+    rescue Exception => e
+      puts [plugin.prefix, e.to_s].join(' ')
+    else
       puts plugin.message
+    ensure
       exit plugin.code
     end
     
     def check
       measure if respond_to?(:measure)
-      @status = [:critical, :warning, :ok].select { |s| send("#{s}?") }.first
-      raise "All status checks returned false!" if @status.nil?
-    rescue => e
-      @info_text = e.to_s
+      set_status
+    rescue Exception
+      @status = :unknown
       raise
     end
     
     def message
-      "#{service.upcase} #{status.upcase}: #{@info_text}"
+      [prefix, (output if respond_to?(:output))].compact.join(' ')
     end
     
-    def service
-      self.class.name
+    def prefix
+      "#{self.class.name.upcase} #{status.upcase}:"
+    end
+    
+    def code
+      EXIT_CODES[status]
     end
     
     def status
       @status || :unknown
     end
-    
-    def code
-      EXIT_CODES[status]
+  
+  protected
+  
+    def set_status
+      @status = [:critical, :warning, :ok].select { |s| send("#{s}?") }.first
+      raise PluginError, "All status checks returned false!" if @status.nil?
     end
     
     def ok?

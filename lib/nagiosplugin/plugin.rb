@@ -43,6 +43,9 @@ module NagiosPlugin
     def status
       @status || :unknown
     end
+    
+    alias_method :to_s, :message
+    alias_method :to_i, :code
   
   protected
   

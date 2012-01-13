@@ -56,4 +56,13 @@ describe NagiosPlugin::Plugin do
       @plugin.code.should eql(code)
     end
   end
+  
+  it "should alias to_s to message" do
+    def @plugin.output; "hello, world" end
+    @plugin.to_s.should eql(@plugin.message)
+  end
+  
+  it "should alias to_i to code" do
+    @plugin.to_i.should eql(@plugin.code)
+  end
 end

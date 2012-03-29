@@ -1,6 +1,6 @@
 # NagiosPlugin
 
-NagiosPlugin is a simple framework for writing [Nagios](http://www.nagios.org/) Plugins.
+A simple framework for writing [Nagios](http://www.nagios.org/) Plugins.
 
 ## Installation
 
@@ -8,42 +8,34 @@ NagiosPlugin is a simple framework for writing [Nagios](http://www.nagios.org/) 
 
 ## Usage
 
-Create your executable plugin (which will be called by nagios), `require "nagiosplugin"` and subclass from `NagiosPlugin::Plugin`.
-You must define the methods `critical?` and `warning?` which determine the plugin status during a check based on their boolean return value (`ok?` returns true by default but can be overwritten).
+Create your executable plugin (which will be called by nagios), `require 'nagiosplugin'` and subclass from `NagiosPlugin::Plugin`.
 
-The optional method `measure` will be called *first* on every check to take samples.
-Additional plugin output after the service name and status can be printed by defining `output` with some fancy content.
-
-Run `check!` on your *class* to ensure a proper plugin output (= stdout & exit status).
+Then define a check method in your class, figure out the status for what
+you want to check and call the corresponding status method (either `ok`,
+`warning`, `critical` or `unknown`)to display a status message and exit
+imediately.
 
 Here's a simple example plugin named `check_u2d`:
 
-````Ruby
+```Ruby
 #!/usr/bin/env ruby
 require 'nagiosplugin'
 
 class UnicornToDwarfRatio < NagiosPlugin::Plugin
-	def measure
-		@unicorns, @dwarves = ... # The algorithm is your homework.
-	end
-	
-	def critical?
-		@unicorns < @dwarves
-	end
-	
-	def warning?
-		@unicorns == @dwarves
-	end
-	
-	def output
-		"#{unicorns.to_f/@dwarves.to_f} unicorns/dwarves"
-	end
+	def check
+    unicorn_to_dwarf_ratio = ... # We still need an alogrithm for this.
+    msg = "#{unicorn_to_dwarf_ratio} unicorns/dwarves"
+
+    critical(msg) if unicorn_to_dwarf_ratio < 0.0
+    warning(msg) if unicorn_to_dwarf_ratio == 0.0
+    ok(msg)
+  end
 end
 
-UnicornToDwarfRatio.check!
+UnicornToDwarfRatio.run
 ```
 
-Please also take a look at features to see what's going on...
+Take a look below `features` to see what's going on...
 
 ## Note on Patches/Pull Requests
 
@@ -56,4 +48,4 @@ Please also take a look at features to see what's going on...
 
 ## Copyright
 
-Copyright (c) 2011 Björn Albers. See LICENSE for details.
+Copyright (c) 2011-2012 Björn Albers. See LICENSE for details.

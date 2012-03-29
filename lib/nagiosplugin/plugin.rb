@@ -1,61 +1,34 @@
 module NagiosPlugin
-  EXIT_CODES = {
-    :ok       => 0,
-    :warning  => 1,
-    :critical => 2,
-    :unknown  => 3,
-  }
-  
-  PluginError = Class.new(StandardError)
-  
   class Plugin
-    def self.check!
-      plugin = self.new
-      plugin.check
-    rescue Exception => e
-      puts [plugin.prefix, e.to_s].join(' ')
-    else
-      puts plugin.message
-    ensure
-      exit plugin.code
+    class StatusError < StandardError
+      attr_reader :status, :to_i
+      def initialize(status, exit_code)
+        @status, @to_i = status, exit_code
+      end
     end
-    
-    def check
-      measure if respond_to?(:measure)
-      set_status
-    rescue Exception
-      @status = :unknown
-      raise
+
+    %w[ok warning critical unknown].each_with_index do |status,exit_code|
+      define_method(status) do |message|
+        raise StatusError.new(status, exit_code), message
+      end
     end
-    
-    def message
-      [prefix, (output if respond_to?(:output))].compact.join(' ')
+
+    class << self
+      def run(*args)
+        self.new(*args).run
+      end
     end
-    
-    def prefix
-      "#{self.class.name.upcase} #{status.to_s.upcase}:"
-    end
-    
-    def code
-      EXIT_CODES[status]
-    end
-    
-    def status
-      @status || :unknown
-    end
-    
-    alias_method :to_s, :message
-    alias_method :to_i, :code
-  
-  protected
-  
-    def set_status
-      @status = [:critical, :warning, :ok].select { |s| send("#{s}?") }.first
-      raise PluginError, "All status checks returned false!" if @status.nil?
-    end
-    
-    def ok?
-      true
-    end
+
+   def run
+     check
+   rescue StatusError => e
+   rescue
+     e = StatusError.new(:unknown, 3)
+   else
+     e = StatusError.new(:unknown, 3)
+   ensure
+     puts e.status.to_s.upcase + e.message
+     exit(e.to_i)
+   end
   end
 end

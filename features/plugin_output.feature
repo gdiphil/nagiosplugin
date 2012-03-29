@@ -1,46 +1,49 @@
 Feature: Plugin Output
 
-	In order to comply with official nagios plugin development guidelines
-	As a sysadmin building my own nagios plugins
-	I want to return a nagios compatible plugin output
+  In order to comply with official nagios plugin development guidelines
+  As a sysadmin building my own nagios plugins
+  I want to return a nagios compatible plugin output
 
-	Scenario Outline: CRITICAL, WARNING and OK
-		When I run a plugin with the following methods:
-			"""
-	    def critical?;	<crit>	end
-	    def warning?;		<warn>	end
-			"""
-		Then the exit status should be <code>
-		And the plugin should print "<status>"
-		
-		Examples:
-		 | crit  | warn  | code | status   |
-		 | true  | true  | 2    | CRITICAL |
-		 | true  | false | 2    | CRITICAL |
-		 | false | true  | 1    | WARNING  |
-		 | false | false | 0    | OK       |
+  Scenario Outline: UNKNOWN, CRITICAL, WARNING and OK
+    Given a file named "check_foo.rb" with:
+      """
+      require 'nagiosplugin'
 
-	Scenario Outline: UNKNOWN when all status checks return false
-		When I run a plugin with the following methods:
-			"""
-  		def critical?;	false		end
-  		def warning?;		false		end
-			def ok?;				<ok>		end
-			"""
-		Then the exit status should be <code>
-		And the plugin should print "<status>"
-		
-		Examples:
-		 | ok    | code | status                                     |
-		 | true  | 0    | OK                                         |
-		 | false | 3    | UNKNOWN: All status checks returned false! |
+      class Foo < NagiosPlugin::Plugin
+        def check
+          status = ARGV.first
+          unknown if status == "UNKNOWN"
+          critical if status == "CRITICAL"
+          warning if status == "WARNING"
+          ok if status == "OK"
+        end
+      end
 
-	Scenario: UNKNOWN when an exception was raised
-		When I run a plugin with the following methods:
-			"""
-			def critical?
-				raise "OOPS!"
-			end
-			"""
-		Then the exit status should be 3
-		And the plugin should print "UNKNOWN: OOPS!"
+      Foo.run
+      """
+    When I run `ruby check_foo.rb <status>`
+    Then the exit status should be <code>
+    And the stdout should contain "<status>"
+
+    Examples:
+     | status   | code |
+     | UNKNOWN  | 3    |
+     | CRITICAL | 2    |
+     | WARNING  | 1    |
+     | OK       | 0    |
+
+  Scenario: UNKNOWN when no status method was called
+    Given a file named "check_foo" with:
+      """
+      require 'nagiosplugin'
+
+      class Foo < NagiosPlugin::Plugin
+        def check
+        end
+      end
+
+      Foo.run
+      """
+    When I run `ruby check_foo`
+    Then the exit status should be 3
+    And the stdout should contain "UNKNOWN"

@@ -1,68 +1,68 @@
-require "spec_helper"
+require 'spec_helper'
 
 describe NagiosPlugin::Plugin do
-  before :each do
+  before do
     @plugin = NagiosPlugin::Plugin.new
   end
-  
-  it "should be unknown when not checked yet" do
-    @plugin.status.should eql(:unknown)
-  end
-  
-  [
-    {:critical? => false, :warning? => false, :status => :ok      },
-    {:critical? => false, :warning? => true,  :status => :warning },
-    {:critical? => true,  :warning? => false, :status => :critical},
-    {:critical? => true,  :warning? => true,  :status => :critical}
-  ].each do |result|
-    it "should be #{result[:status].to_s} if checked so" do
-      @plugin.stub(:critical?).and_return(result[:critical?])
-      @plugin.stub(:warning?).and_return(result[:warning?])
-      @plugin.check
-      @plugin.status.should eql(result[:status])
-    end
-  end
-  
-  it "should raise when all checks return false" do
-    [:critical?, :warning?, :ok?].each do |m|
-      @plugin.stub(m).and_return(false)
-    end
-    lambda { @plugin.check }.should raise_error(NagiosPlugin::PluginError)
-    @plugin.status.should eql(:unknown)
-  end
-  
 
-  it "should raise if check methods are undefined" do
-    lambda { @plugin.check }.should raise_error(NoMethodError)
-    @plugin.status.should eql(:unknown)
-    
-    @plugin.instance_exec { def critical?; false end }
-    lambda { @plugin.check }.should raise_error(NoMethodError)
-    @plugin.status.should eql(:unknown)
-    
-    @plugin.instance_exec { def warning?; false end }
-    lambda { @plugin.check }.should_not raise_error(NoMethodError)
-    @plugin.status.should_not eql(:unknown)
-  end
-  
-  it "should also represent the status as exit code" do
-    {
-      :ok => 0,
-      :warning => 1,
-      :critical => 2,
-      :unknown => 3
-    }.each_pair do |status,code|
-      @plugin.stub(:status).and_return(status)
-      @plugin.code.should eql(code)
+  describe '#run' do
+    before do
+      @plugin.stub(:puts)
+      @plugin.stub(:exit)
     end
-  end
-  
-  it "should alias to_s to message" do
-    def @plugin.output; "hello, world" end
-    @plugin.to_s.should eql(@plugin.message)
-  end
-  
-  it "should alias to_i to code" do
-    @plugin.to_i.should eql(@plugin.code)
+
+    it 'should run the check method' do
+      @plugin.should_receive(:check).with(no_args)
+      @plugin.run
+    end
+
+    context 'when check method is missing' do
+      #it 'should output a hint for the developer' do
+        #@plugin.should_receive(:puts).with(/unknown method check/)
+        #@plugin.run
+      #end
+
+      it 'should exit unknown' do
+        @plugin.should_receive(:exit).with(3)
+        @plugin.run
+      end
+    end
+
+    it 'should exit unknown when no status method was called' do
+      @plugin.should_receive(:exit).with(3)
+      def @plugin.check
+        #...
+      end
+      @plugin.run
+    end
+
+    context 'when check raises a status error' do
+      before do
+        def @plugin.check
+          raise NagiosPlugin::Plugin::StatusError.new(:foo, 42), 'hello, world.'
+        end
+      end
+
+      it 'should output the status type' do
+        @plugin.should_receive(:puts).with(/FOO/)
+        @plugin.run
+      end
+
+      it 'should output the status message' do
+        @plugin.should_receive(:puts).with(/hello, world\./)
+        @plugin.run
+      end
+
+      it 'should exit with the exit status from status error' do
+        @plugin.should_receive(:exit).with(42)
+        @plugin.run
+      end
+    end
   end
 end
+
+#describe NagiosPlugin::Plugin::StatusError do
+#  it 'shoud convert to 0 when ok' do
+#    NagiosPlugin::Plugin::StatusError.new(:ok).to_i.should eql(0)
+#  end
+#end

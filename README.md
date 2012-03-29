@@ -8,12 +8,13 @@ A simple framework for writing [Nagios](http://www.nagios.org/) Plugins.
 
 ## Usage
 
-Create your executable plugin (which will be called by nagios), `require 'nagiosplugin'` and subclass from `NagiosPlugin::Plugin`.
+Create your executable file (which will be called by nagios), `require
+'nagiosplugin'` and subclass from `NagiosPlugin::Plugin`.
 
-Then define a check method in your class, figure out the status for what
-you want to check and call the corresponding status method (either `ok`,
-`warning`, `critical` or `unknown`)to display a status message and exit
-imediately.
+Then define a check method in your class which figures out the status
+for what you want to check and calls the corresponding status method
+(`ok`, `warning`, `critical` or `unknown`) to display a status message
+and exit imediately.
 
 Here's a simple example plugin named `check_u2d`:
 

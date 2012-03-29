@@ -11,11 +11,12 @@ Feature: Plugin Output
 
       class Foo < NagiosPlugin::Plugin
         def check
-          status = ARGV.first
-          unknown if status == "UNKNOWN"
-          critical if status == "CRITICAL"
-          warning if status == "WARNING"
-          ok if status == "OK"
+          case ARGV.first
+            when 'UNKNOWN'  then unknown  'no clue, sorry'
+            when 'CRITICAL' then critical 'booooom!'
+            when 'WARNING'  then warning  'it could be worse'
+            when 'OK'       then ok       'all is fine'
+          end
         end
       end
 

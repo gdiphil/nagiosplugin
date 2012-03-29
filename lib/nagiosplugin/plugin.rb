@@ -1,15 +1,28 @@
 module NagiosPlugin
   class Plugin
+    STATUS = [:ok, :warning, :critical, :unknown]
+
     class StatusError < StandardError
-      attr_reader :status, :to_i
-      def initialize(status, exit_code)
-        @status, @to_i = status, exit_code
+      def initialize(status, message)
+        @status, @message = status.to_sym, message
+      end
+
+      def status
+        (STATUS.include?(@status) && @status) || STATUS.last
+      end
+
+      def to_s
+        "#{status.to_s.upcase}: #{@message}"
+      end
+
+      def to_i
+        STATUS.find_index(status)
       end
     end
 
-    %w[ok warning critical unknown].each_with_index do |status,exit_code|
+    STATUS.each do |status|
       define_method(status) do |message|
-        raise StatusError.new(status, exit_code), message
+        raise StatusError.new(status, message)
       end
     end
 
@@ -22,13 +35,13 @@ module NagiosPlugin
    def run
      check
    rescue StatusError => e
-   rescue
-     e = StatusError.new(:unknown, 3)
+   rescue => e
+     e = StatusError.new(:unknown, ([e.to_s, nil] + e.backtrace).join("\n"))
    else
-     e = StatusError.new(:unknown, 3)
+     e = StatusError.new(:unknown, 'no status method was called')
    ensure
-     puts e.status.to_s.upcase + e.message
-     exit(e.to_i)
+     puts [self.class.name.upcase, e.to_s].join(' ')
+     exit e.to_i
    end
   end
 end

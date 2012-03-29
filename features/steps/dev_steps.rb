@@ -6,7 +6,7 @@ When /^I run a plugin with the following methods:$/ do |methods|
 			class Foo < NagiosPlugin::Plugin
         #{methods}
   		end
-			Foo.check!
+			Foo.new.run
 			"""
 		When I run `ruby check_foo`
   }

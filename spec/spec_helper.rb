@@ -1,1 +1,1 @@
-require "nagiosplugin"
+require 'nagiosplugin'

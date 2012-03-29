@@ -1,2 +1,2 @@
-require "nagiosplugin/version"
-require "nagiosplugin/plugin"
+require 'nagiosplugin/version'
+require 'nagiosplugin/plugin'

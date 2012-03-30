@@ -4,7 +4,7 @@ A simple framework for writing [Nagios](http://www.nagios.org/) Plugins.
 
 ## Installation
 
-	`gem install nagiosplugin`
+	gem install nagiosplugin
 
 ## Usage
 
@@ -14,7 +14,7 @@ Create your executable file (which will be called by nagios), `require
 Then define a check method in your class which figures out the status
 for what you want to check and calls the corresponding status method
 (`ok`, `warning`, `critical` or `unknown`) to display a status message
-and exit imediately.
+and exit immediately.
 
 Here's a simple example plugin named `check_u2d`:
 

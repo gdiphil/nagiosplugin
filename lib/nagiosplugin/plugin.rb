@@ -46,6 +46,11 @@ module NagiosPlugin
       end
     end
 
+    # Overwrite this check method and call a status method within!
+    def check
+      unknown 'please overwrite the method `check` in your class'
+    end
+
    # Run check and return result in a nagios-compatible format.
    #
    # It will...

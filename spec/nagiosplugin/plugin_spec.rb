@@ -23,6 +23,11 @@ describe NagiosPlugin::Plugin do
       @plugin.run
     end
 
+    it 'should output an appropriate message when check was not overwritten' do
+      @plugin.should_receive(:puts).with(/please overwrite the method `check` in your class/i)
+      @plugin.run
+    end
+
     context 'when an unknown exception was raised' do
       before do
         StandardError.any_instance.stub(:backtrace).and_return(%w[foo bar baz])

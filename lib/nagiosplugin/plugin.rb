@@ -43,7 +43,6 @@ module NagiosPlugin
       # @macro [status] message
       #   @method $1(message)
       #   Raise $1 StatusError with message
-      #   @scope class
       #   @param [String] message the exeption message
       def make(status)
         define_method(status) do |message|

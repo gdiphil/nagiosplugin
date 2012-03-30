@@ -1,19 +1,16 @@
 module NagiosPlugin
   class Plugin
-    # All allowed statuses sorted by their corresponding exit status.
-    STATUS = [:ok, :warning, :critical, :unknown]
 
     # A custom status error which will be raised through the status methods.
     class StatusError < StandardError
-      # @param [Symbol] status the status (must be {NagiosPlugin::Plugin::STATUS a valid status})
+
+      # All allowed statuses sorted by their corresponding exit status.
+      STATUS = [:ok, :warning, :critical, :unknown]
+
+      # @param [Symbol] status the status (must be {NagiosPlugin::Plugin::StatusError::STATUS a valid status})
       # @param [String] message the message you want to display
       def initialize(status, message)
         @status, @message = status.to_sym, message
-      end
-
-      # @return [Symbol] the status
-      def status
-        (STATUS.include?(@status) && @status) || STATUS.last
       end
 
       # @return [String] the status and message
@@ -25,28 +22,42 @@ module NagiosPlugin
       def to_i
         STATUS.find_index(status)
       end
+
+    private
+
+      # @return [Symbol] the status (:unknown if invalid)
+      def status
+        (STATUS.include?(@status) && @status) || STATUS.last
+      end
     end
 
     class << self
+
       # Create new instance and run it.
       def run(*args)
         self.new(*args).run
       end
-    end
 
-    # The methods for each status.
-    #
-    # They should be called in your check method and will raise an appropriate
-    # StatusError.
-    #
-    # @param [String] message
-    STATUS.each do |status|
-      define_method(status) do |message|
-        raise StatusError.new(status, message)
+    private
+
+      # @macro [status] message
+      #   @method $1(message)
+      #   Raise $1 StatusError with message
+      #   @scope class
+      #   @param [String] message the exeption message
+      def make(status)
+        define_method(status) do |message|
+          raise StatusError.new(status, message)
+        end
       end
     end
 
-    # Overwrite this check method and call a status method within!
+    make :ok
+    make :warning
+    make :critical
+    make :unknown
+
+    # Overwrite this check method and call a status method within.
     def check
       unknown 'please overwrite the method `check` in your class'
     end

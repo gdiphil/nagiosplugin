@@ -17,9 +17,9 @@ describe NagiosPlugin::Plugin do
       @plugin.run
     end
 
-    it 'should output the class name' do
-      def @plugin.check; end
-      @plugin.should_receive(:puts).with(/MYPLUGIN/)
+    it 'should output the servie name' do
+      @plugin.stub(:service).and_return('MY_FUNKY_PLUGIN')
+      @plugin.should_receive(:puts).with(/MY_FUNKY_PLUGIN/)
       @plugin.run
     end
 
@@ -87,6 +87,12 @@ describe NagiosPlugin::Plugin do
         @plugin.should_receive(:exit).with(0)
         @plugin.run
       end
+    end
+  end
+
+  describe '#service' do
+    it 'should return the upcased class name' do
+      @plugin.service.should eql('MYPLUGIN')
     end
   end
 end

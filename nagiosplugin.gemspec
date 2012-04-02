@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.email       = ['bjoernalbers@googlemail.com']
   s.homepage    = 'https://github.com/bjoernalbers/nagiosplugin'
   s.summary     = "#{s.name}-#{s.version}"
-  s.description = 'A simple framework for writing Nagios Plugins'
+  s.description = 'The one Nagios Plugin framework, forged in the fires of Mount Doom.'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

@@ -24,7 +24,7 @@ describe NagiosPlugin::Plugin do
     end
 
     it 'should output an appropriate message when check was not overwritten' do
-      @plugin.should_receive(:puts).with(/please overwrite the method `check` in your class/i)
+      @plugin.should_receive(:puts).with(/please overwrite the `check` method in your class/i)
       @plugin.run
     end
 
@@ -69,7 +69,7 @@ describe NagiosPlugin::Plugin do
     context 'when a status error was raised' do
       before do
         def @plugin.check
-          raise NagiosPlugin::Plugin::StatusError.new(:ok, 'hello, world.')
+          raise NagiosPlugin::StatusError.new(:ok, 'hello, world.')
         end
       end
 
@@ -87,39 +87,6 @@ describe NagiosPlugin::Plugin do
         @plugin.should_receive(:exit).with(0)
         @plugin.run
       end
-    end
-  end
-end
-
-
-describe NagiosPlugin::Plugin::StatusError do
-  def create_status(status, msg = '')
-    NagiosPlugin::Plugin::StatusError.new(status, msg)
-  end
-
-  %w[ok warning critical unknown].each_with_index do |s,i|
-    context "when #{s}" do
-      before { @status = create_status(s.to_sym) }
-
-      it 'should include status in the exception message' do
-        @status.to_s.should include(s.upcase)
-      end
-
-      it "should convert to #{i}" do
-        @status.to_i.should eql(i)
-      end
-    end
-  end
-
-  context 'when initialized with invalid status' do
-    before { @status = create_status(:invalid) }
-
-    it 'should include unknown status in the exception message' do
-      @status.to_s.should include('UNKNOWN')
-    end
-
-    it 'should convert to 3' do
-      @status.to_i.should eql(3)
     end
   end
 end

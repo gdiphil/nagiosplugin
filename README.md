@@ -1,6 +1,6 @@
 # NagiosPlugin
 
-A simple framework for writing [Nagios](http://www.nagios.org/) Plugins.
+The one [Nagios](http://www.nagios.org/) Plugin framework, forged in the fires of Mount Doom.
 
 ## Installation
 
@@ -8,35 +8,25 @@ A simple framework for writing [Nagios](http://www.nagios.org/) Plugins.
 
 ## Usage
 
-Create your executable file (which will be called by nagios), `require
-'nagiosplugin'` and subclass from `NagiosPlugin::Plugin`.
+### Step 1
 
-Then define a check method in your class which figures out the status
-for what you want to check and calls the corresponding status method
-(`ok`, `warning`, `critical` or `unknown`) to display a status message
-and exit immediately.
+Just subclass from `NagiosPlugin::Plugin` and define your `check` method
+which should figure out the status and then call the appropriate status
+method (`ok`, `warning`, `critical` or `unknown`) with meaningfull message.
+(The status methods will exit immediately by raising a corresponding StatusError.)
 
-Here's a simple example plugin named `check_u2d`:
+Take a look at a working [usage
+example](https://github.com/bjoernalbers/nagiosplugin/blob/master/features/nagiosplugin_usage.feature).
 
-```Ruby
-#!/usr/bin/env ruby
-require 'nagiosplugin'
+### Step 2
 
-class UnicornToDwarfRatio < NagiosPlugin::Plugin
-	def check
-    unicorn_to_dwarf_ratio = ... # We still need an alogrithm for this.
-    msg = "#{unicorn_to_dwarf_ratio} unicorns/dwarves"
+Call the `run` method on your new class, which outputs the check result
+and exits in compliance with the official [Nagios plug-in development
+guidelines](http://nagiosplug.sourceforge.net/developer-guidelines.html)
 
-    critical(msg) if unicorn_to_dwarf_ratio < 0.0
-    warning(msg) if unicorn_to_dwarf_ratio == 0.0
-    ok(msg)
-  end
-end
+### Step 3
 
-UnicornToDwarfRatio.run
-```
-
-Take a look below `features` to see what's going on...
+Profit... and maybe also fun.
 
 ## Note on Patches/Pull Requests
 

@@ -2,6 +2,8 @@
 
 The one [Nagios](http://www.nagios.org/) Plugin framework, forged in the fires of Mount Doom.
 
+[![Build Status](https://secure.travis-ci.org/bjoernalbers/nagiosplugin.png)](http://travis-ci.org/bjoernalbers/nagiosplugin)
+
 ## Installation
 
 	gem install nagiosplugin

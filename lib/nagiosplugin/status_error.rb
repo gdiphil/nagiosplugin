@@ -3,7 +3,7 @@ module NagiosPlugin
     # A custom status error which will be raised through the status methods.
     class StatusError < StandardError
 
-      # All allowed statuses sorted by their corresponding exit status.
+      # All allowed statuses sorted by their exit code
       STATUS = [:ok, :warning, :critical, :unknown]
 
       # @param [Symbol] status the status (must be {NagiosPlugin::Plugin::StatusError::STATUS a valid status})

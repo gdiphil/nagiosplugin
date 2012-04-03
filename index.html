@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>NagiosPlugin by bjoernalbers</title>
+    
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>NagiosPlugin</h1>
+        <p>The one Nagios Plugin framework, forged in the fires of Mount Doom.</p>
+        <p class="view"><a href="https://github.com/bjoernalbers/nagiosplugin">View the Project on GitHub <small>bjoernalbers/nagiosplugin</small></a></p>
+        <ul>
+          <li><a href="https://github.com/bjoernalbers/nagiosplugin/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/bjoernalbers/nagiosplugin/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/bjoernalbers/nagiosplugin">Fork On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <p><a href="http://travis-ci.org/bjoernalbers/nagiosplugin"><img src="https://secure.travis-ci.org/bjoernalbers/nagiosplugin.png" alt="Build Status"></a></p>
+
+<h2>Installation</h2>
+
+<pre><code>gem install nagiosplugin
+</code></pre>
+
+<h2>Usage</h2>
+
+<h3>Step 1</h3>
+
+<p>Just subclass from <code>NagiosPlugin::Plugin</code> and define your <code>check</code> method
+which should figure out the status and then call the appropriate status
+method (<code>ok</code>, <code>warning</code>, <code>critical</code> or <code>unknown</code>) with meaningfull message.
+(The status methods will exit immediately by raising a corresponding StatusError.)</p>
+
+<h3>Step 2</h3>
+
+<p>Call the <code>run</code> method on your new class, which outputs the check result
+and exits in compliance with the official <a href="http://nagiosplug.sourceforge.net/developer-guidelines.html">Nagios plug-in development
+guidelines</a></p>
+
+<h3>Step 3</h3>
+
+<p>Profit... and maybe also fun.</p>
+
+<h3>Example</h3>
+
+<div class="highlight">
+<pre><span class="nb">require</span> <span class="s1">'nagiosplugin'</span>
+
+<span class="k">class</span> <span class="nc">Foo</span> <span class="o">&lt;</span> <span class="no">NagiosPlugin</span><span class="o">::</span><span class="no">Plugin</span>
+  <span class="k">def</span> <span class="nf">check</span>
+    <span class="k">case</span> <span class="no">ARGV</span><span class="o">.</span><span class="n">first</span>
+      <span class="k">when</span> <span class="s1">'UNKNOWN'</span>  <span class="k">then</span> <span class="n">unknown</span>  <span class="s1">'no clue, sorry'</span>
+      <span class="k">when</span> <span class="s1">'CRITICAL'</span> <span class="k">then</span> <span class="n">critical</span> <span class="s1">'booooom!'</span>
+      <span class="k">when</span> <span class="s1">'WARNING'</span>  <span class="k">then</span> <span class="n">warning</span>  <span class="s1">'it could be worse'</span>
+      <span class="k">when</span> <span class="s1">'OK'</span>       <span class="k">then</span> <span class="n">ok</span>       <span class="s1">'all is fine'</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="no">Foo</span><span class="o">.</span><span class="n">run</span>
+</pre>
+</div>
+
+
+<h2>Note on Patches/Pull Requests</h2>
+
+<ul>
+<li>Fork the project and run <code>bundle install</code> to resolve all development dependencies.</li>
+<li>Add specs and/or features for it. This is important so I don't break it in a future version unintentionally.</li>
+<li>Make your feature addition or bug fix.</li>
+<li>Commit, do not mess with the Rakefile or gemspec.
+(If you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull.)</li>
+<li>Send me a pull request. Bonus points for topic branches.</li>
+</ul><h2>Copyright</h2>
+
+<p>Copyright (c) 2011-2012 Björn Albers. See LICENSE for details.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/bjoernalbers">bjoernalbers</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+  </body>
+</html>

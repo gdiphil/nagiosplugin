@@ -1,6 +1,43 @@
+require "optparse"
+
 module NagiosPlugin
   class Plugin
     class << self
+      def parse_options(options, &blk2)
+        blk = lambda do |opts|
+          opts.banner  = "% #{$0} [options]"
+          opts.separator ""
+          opts.separator "Specific options:"
+          opts.separator ""
+
+          opts.on('-h', '--help', 'Display this help.') do
+            abort "#{opts}"
+          end
+
+          opts.on('-r', '--reverse', 'Reverse thresholds.') do |b|
+            options[:reverse] = b
+          end
+
+          opts.on('-w', '--warn <n>', 'Warning threshold.') do |s|
+            options[:warn] = s.to_i
+          end
+
+          opts.on('-c', '--crit <n>', 'Critical threshold.') do |s|
+            options[:crit] = s.to_i
+          end
+
+          blk2.call(opts)
+
+          begin
+            opts.parse!
+          rescue => e
+            abort "#{e}\n\n#{opts}"
+          end
+        end
+
+        OptionParser.new &blk
+        options
+      end
 
       # Create new instance and run it.
       def run(*args)
@@ -24,6 +61,13 @@ module NagiosPlugin
     make :warning
     make :critical
     make :unknown
+
+    def initialize(options)
+      @warn = options[:warn]
+      @crit = options[:crit]
+      @reverse = options[:reverse]
+    end
+
 
     # Overwrite this check method and call a status method within.
     def check
@@ -58,5 +102,9 @@ module NagiosPlugin
       puts [service, e.to_s].join(' ')
       exit e.to_i
     end
+
+    def perfdata
+    end
+
   end
 end

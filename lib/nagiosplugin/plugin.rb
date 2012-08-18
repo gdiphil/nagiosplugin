@@ -62,10 +62,10 @@ module NagiosPlugin
     make :critical
     make :unknown
 
-    def initialize(options)
-      @warn = options[:warn]
-      @crit = options[:crit]
-      @reverse = options[:reverse]
+    def initialize(options={})
+      @warn = options[:warn] if options[:warn]
+      @crit = options[:crit] if options[:crit]
+      @reverse = options[:reverse] if options[:reverse]
     end
 
 

@@ -4,7 +4,7 @@ module NagiosPlugin
   class Plugin
     class << self
       def parse_options(options, &blk2)
-        blk = lambda do |opts|
+        OptionParser.new do |opts|
           opts.banner  = "% #{$0} [options]"
           opts.separator ""
           opts.separator "Specific options:"
@@ -35,7 +35,6 @@ module NagiosPlugin
           end
         end
 
-        OptionParser.new &blk
         options
       end
 

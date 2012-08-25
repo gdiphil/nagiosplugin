@@ -49,7 +49,7 @@ module NagiosPlugin
       start..stop
     end
 
-    def options_block
+    def default_options
       lambda do |opts|
         opts.separator ""
         opts.separator "Default options:"

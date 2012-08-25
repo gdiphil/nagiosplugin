@@ -17,7 +17,7 @@ class MyPlugin < NagiosPlugin::Plugin
   end
 
   def parse_options(*args)
-    @options ={}
+    @options = {}
     OptionParser.new do |opts|
       opts.banner  = "% #{File.basename($0)} --filename <file>"
       opts.separator ""
@@ -28,8 +28,7 @@ class MyPlugin < NagiosPlugin::Plugin
         @options[:filename] = s
       end
 
-#      yield(opts) if block_given?
-      options_block.call(opts)
+      yield(opts) if block_given?
 
       begin
         opts.parse!(args)
@@ -42,8 +41,7 @@ class MyPlugin < NagiosPlugin::Plugin
   end
 
   def initialize(*args)
-    parse_options(*args) #, &options_block)
-    puts @options
+    parse_options(*args, &default_options)
     @warn = @options[:warn] if @options[:warn]
     @crit = @options[:crit] if @options[:crit]
     @reverse = @options[:reverse] if @options[:reverse]

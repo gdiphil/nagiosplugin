@@ -102,8 +102,5 @@ module NagiosPlugin
       exit e.to_i
     end
 
-    def perfdata
-    end
-
   end
 end

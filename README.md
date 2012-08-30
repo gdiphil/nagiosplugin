@@ -39,6 +39,13 @@ Profit... and maybe also fun.
   (If you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull.)
 * Send me a pull request. Bonus points for topic branches.
 
+## Acknowledgments
+
+Thanks to the following contributors for improving NagiosPlugin:
+
+* [szuecs (Sandor Szücs)](https://github.com/szuecs): Adding default
+  options, perfdata stuff and helpful sample code.
+
 ## Copyright
 
 Copyright (c) 2011-2012 Björn Albers. See LICENSE for details.

@@ -5,24 +5,31 @@ Feature: NagiosPlugin Usage
   I want to use the one NagiosPlugin framework
 
   Scenario Outline: Subclass from NagiosPlugin
-    Given a file named "check_foo.rb" with:
+    Given a file named "check_fancy.rb" with:
       """
       require 'nagiosplugin'
 
-      class Foo < NagiosPlugin::Plugin
-        def check
-          case ARGV.first
-            when 'UNKNOWN'  then unknown  'no clue, sorry'
-            when 'CRITICAL' then critical 'booooom!'
-            when 'WARNING'  then warning  'it could be worse'
-            when 'OK'       then ok       'all is fine'
-          end
+      class FancyPlugin < NagiosPlugin::Plugin
+        def critical?
+          <critical>
+        end
+
+        def warning?
+          <warning>
+        end
+
+        def ok?
+          <ok>
+        end
+
+        def message
+          'answer is 42'
         end
       end
 
-      Foo.run
+      FancyPlugin.new.check!
       """
-    When I run `ruby check_foo.rb <status>`
+    When I run `ruby check_fancy.rb`
     Then the exit status should be <code>
     And the stdout should contain exactly:
       """
@@ -31,8 +38,8 @@ Feature: NagiosPlugin Usage
       """
 
     Examples:
-     | status   | code | stdout                         |
-     | UNKNOWN  | 3    | FOO UNKNOWN: no clue, sorry    |
-     | CRITICAL | 2    | FOO CRITICAL: booooom!         |
-     | WARNING  | 1    | FOO WARNING: it could be worse |
-     | OK       | 0    | FOO OK: all is fine            |
+     | critical | warning | ok    | status   | code | stdout                       |
+     | true     | true    | true  | CRITICAL | 2    | FANCY CRITICAL: answer is 42 |
+     | false    | true    | true  | WARNING  | 1    | FANCY WARNING: answer is 42  |
+     | false    | false   | true  | OK       | 0    | FANCY OK: answer is 42       |
+     | false    | false   | false | UNKNOWN  | 3    | FANCY UNKNOWN: answer is 42  |

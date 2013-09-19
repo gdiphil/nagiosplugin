@@ -1,119 +1,137 @@
 require 'spec_helper'
 
-describe NagiosPlugin::Plugin do
-  before do
-    class MyPlugin < NagiosPlugin::Plugin; end
-    @plugin = MyPlugin.new
+module NagiosPlugin
+  describe Plugin do
+    let(:plugin) { Plugin.new }
 
-    class MergedOptionsPlugin < NagiosPlugin::Plugin
-      def initialize(options, &blk)
-        super(options, &blk)
-        @foo = options[:foo]
-      end
-      attr_reader :warn, :crit, :reverse, :foo
-    end
-    @plugin_with_options = MergedOptionsPlugin.new({:warn => 5, :crit => 1, :reverse => true, :foo => "bar"})  do |opts|
-      opts.on('--foo <s>', 'A test option.') do |s|
-        options[:foo] = s
-      end
-    end
-  end
-
-  describe '#initialize' do
-    it "should have attributes" do
-      @plugin_with_options.should satisfy { |o|
-        o.warn == 5 and o.crit == 1 and o.reverse and o.foo == "bar"
-      }
-    end
-  end
-
-  describe '#run' do
-    before do
-      @plugin.stub(:puts)
-      @plugin.stub(:exit)
-    end
-
-    it 'should run the check method' do
-      @plugin.should_receive(:check).with(no_args)
-      @plugin.run
-    end
-
-    it 'should output the servie name' do
-      @plugin.stub(:service).and_return('MY_FUNKY_PLUGIN')
-      @plugin.should_receive(:puts).with(/MY_FUNKY_PLUGIN/)
-      @plugin.run
-    end
-
-    it 'should output an appropriate message when check was not overwritten' do
-      @plugin.should_receive(:puts).with(/please overwrite the `check` method in your class/i)
-      @plugin.run
-    end
-
-    context 'when an unknown exception was raised' do
+    describe '#check!' do
       before do
-        StandardError.any_instance.stub(:backtrace).and_return(%w[foo bar baz])
-        def @plugin.check
-          raise StandardError, 'Oops!'
+        plugin.stub(:puts                     => nil,
+                    :exit                     => nil,
+                    :nagios_plugin_exit_code  => nil,
+                    :nagios_plugin_output     => nil)
+      end
+
+      it 'displays the plugin output on stdout' do
+        plugin.should_receive(:nagios_plugin_output).and_return('chunky bacon')
+        plugin.should_receive(:puts).with('chunky bacon')
+        plugin.check!
+      end
+
+      it 'exits with the status exit code' do
+        plugin.should_receive(:nagios_plugin_exit_code).and_return(42)
+        plugin.should_receive(:exit).with(42)
+        plugin.check!
+      end
+
+      context 'when an exception was raised' do
+        let(:exception) { StandardError.new }
+
+        before do
+          plugin.stub(:nagios_plugin_output).and_return { raise }
+        end
+
+        it 'rescues the exception' do
+          expect { plugin.check! }.to_not raise_error
+        end
+
+        it 'exits with exit code unknown' do
+          plugin.should_receive(:exit).with(3)
+          plugin.check!
+        end
+
+        it 'displays the exception and backtrace on stdout' do
+          plugin.stub(:nagios_plugin_output).and_return { raise 'Oops!' }
+          StandardError.any_instance.stub(:backtrace).
+            and_return('Chunky Bacon')
+          plugin.should_receive(:puts).
+            with("PLUGIN UNKNOWN: Oops!\n\nChunky Bacon")
+          plugin.check!
         end
       end
+    end
 
-      it 'should output the execptions message' do
-        @plugin.should_receive(:puts).with(/Oops!/)
-        @plugin.run
+    describe '#nagios_plugin_service' do
+      it 'returns the upcased class name' do
+        class Foo < Plugin; end
+        plugin = Foo.new
+        expect(plugin.send(:nagios_plugin_service)).to eq('FOO')
       end
 
-      it 'should output the exceptions backtrace' do
-        @plugin.should_receive(:puts).with(/foo\nbar\nbaz/)
-        @plugin.run
-      end
-
-      it 'should exit unknown' do
-        @plugin.should_receive(:exit).with(3)
-        @plugin.run
+      it 'strips "Plugin" from the class name' do
+        class BarPlugin < Plugin; end
+        plugin = BarPlugin.new
+        expect(plugin.send(:nagios_plugin_service)).to eq('BAR')
       end
     end
 
-    context 'when no exception was raised' do
-      before { def @plugin.check; end }
-
-      it 'should display a hint for the developer' do
-        @plugin.should_receive(:puts).with(/no status method was called/i)
-        @plugin.run
+    describe '#nagios_plugin_status' do
+      it 'returns unknown when not critical, warning or ok' do
+        plugin.stub(:critical? => false, :warning? => false, :ok? => false)
+        expect(plugin.send(:nagios_plugin_status)).to eq(:unknown)
       end
 
-      it 'should exit unknown' do
-        @plugin.should_receive(:exit).with(3)
-        @plugin.run
+      it 'returns critical when critical' do
+        plugin.stub(:critical? => true, :warning? => true, :ok? => true)
+        expect(plugin.send(:nagios_plugin_status)).to eq(:critical)
       end
-    end
 
-    context 'when a status error was raised' do
-      before do
-        def @plugin.check
-          raise NagiosPlugin::StatusError.new(:ok, 'hello, world.')
+      it 'returns warning when warning but not critical' do 
+        plugin.stub(:critical? => false, :warning? => true, :ok? => true)
+        expect(plugin.send(:nagios_plugin_status)).to eq(:warning)
+      end
+
+      it 'returns ok when ok but not critical or warning' do
+        plugin.stub(:critical? => false, :warning? => false, :ok? => true)
+        expect(plugin.send(:nagios_plugin_status)).to eq(:ok)
+      end
+
+      it 'saves the status' do
+        [:critical?, :warning?, :ok?].each do |check|
+          plugin.should_receive(check).once.and_return(false)
         end
-      end
-
-      it 'should output the status type' do
-        @plugin.should_receive(:puts).with(/OK/)
-        @plugin.run
-      end
-
-      it 'should output the status message' do
-        @plugin.should_receive(:puts).with(/hello, world\./)
-        @plugin.run
-      end
-
-      it 'should exit with the exit status from status error' do
-        @plugin.should_receive(:exit).with(0)
-        @plugin.run
+        expect(plugin.send(:nagios_plugin_status)).to eq(:unknown)
+        expect(plugin.send(:nagios_plugin_status)).to eq(:unknown)
       end
     end
-  end
 
-  describe '#service' do
-    it 'should return the upcased class name' do
-      @plugin.service.should eql('MYPLUGIN')
+    describe '#nagios_plugin_exit_code' do
+      it 'returns 3 when unknown' do
+        plugin.should_receive(:nagios_plugin_status).and_return(:unknown)
+        expect(plugin.send(:nagios_plugin_exit_code)).to eq(3)
+      end
+
+      it 'returns 2 when critical' do
+        plugin.should_receive(:nagios_plugin_status).and_return(:critical)
+        expect(plugin.send(:nagios_plugin_exit_code)).to eq(2)
+      end
+
+      it 'returns 1 when warning' do
+        plugin.should_receive(:nagios_plugin_status).and_return(:warning)
+        expect(plugin.send(:nagios_plugin_exit_code)).to eq(1)
+      end
+      
+      it 'returns 0 when ok' do
+        plugin.should_receive(:nagios_plugin_status).and_return(:ok)
+        expect(plugin.send(:nagios_plugin_exit_code)).to eq(0)
+      end
+    end
+
+    describe '#nagios_plugin_output' do
+      before do
+        plugin.stub(:nagios_plugin_status)
+      end
+
+      it 'joins the service name and the upcased status' do
+        plugin.should_receive(:nagios_plugin_service).and_return('FRIED')
+        plugin.should_receive(:nagios_plugin_status).and_return(:chicken)
+        expect(plugin.send(:nagios_plugin_output)).to match(/^FRIED CHICKEN$/)
+      end
+
+      it 'includes a custom plugin message if present' do
+        plugin.should_receive(:message).and_return('ALL U CAN EAT!')
+        expect(plugin.send(:nagios_plugin_output)).to match(/: ALL U CAN EAT!$/)
+      end
     end
   end
 end

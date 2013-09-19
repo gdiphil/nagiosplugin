@@ -73,7 +73,7 @@ end
 In your binary then call `check!` on your class and you're done:
 
 ```Ruby
-MyFancyPlugin.check!
+MyFancyPlugin.new.check!
 ```
 
 This will output the check result and exits in compliance with the
@@ -87,11 +87,11 @@ rescue mission" and transforms any execptions to an unknown status.
 
 ## One more thing...
 
-The API changed completely compared to v1.3, also the default command
-line options.
+The API changed completely compared to v1.3 as well as the default command
+line options (they are gone).
 I suggest that you use 3rd party [CLI Option
 Parsers](https://www.ruby-toolbox.com/categories/CLI_Option_Parsers)
-because everyone might have different preferences.
+because everyone has different preferences on this.
 
 Please let me know if you find this usefull or if you want to contribute!
 

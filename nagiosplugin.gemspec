@@ -1,25 +1,27 @@
-# -*- encoding: utf-8 -*-
-$:.push File.expand_path('../lib', __FILE__)
+# coding: utf-8
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'nagiosplugin/version'
 
-Gem::Specification.new do |s|
-  s.name        = 'nagiosplugin'
-  s.version     = NagiosPlugin::VERSION
-  s.authors     = ['Björn Albers']
-  s.email       = ['bjoernalbers@googlemail.com']
-  s.homepage    = 'https://github.com/bjoernalbers/nagiosplugin'
-  s.summary     = "#{s.name}-#{s.version}"
-  s.description = 'The one Nagios Plugin framework, forged in the fires of Mount Doom.'
+Gem::Specification.new do |spec|
+  spec.name        = 'nagiosplugin'
+  spec.version     = NagiosPlugin::VERSION
+  spec.authors     = ['Björn Albers']
+  spec.email       = ['bjoernalbers@googlemail.com']
+  spec.homepage    = 'https://github.com/bjoernalbers/nagiosplugin'
+  spec.summary     = "#{spec.name}-#{spec.version}"
+  spec.description = 'The one Nagios Plugin framework, forged in the fires of Mount Doom.'
+  spec.license     = 'MIT'
 
-  s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
-  s.require_paths = ['lib']
+  spec.files         = `git ls-files`.split("\n")
+  spec.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+  spec.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+  spec.require_paths = ['lib']
 
-  s.add_development_dependency 'rake'
-  s.add_development_dependency 'cucumber'
-  s.add_development_dependency 'aruba'
-  s.add_development_dependency 'guard-cucumber'
-  s.add_development_dependency 'rspec'
-  s.add_development_dependency 'guard-rspec'
+  spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'cucumber'
+  spec.add_development_dependency 'aruba'
+  spec.add_development_dependency 'guard-cucumber'
+  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'guard-rspec'
 end

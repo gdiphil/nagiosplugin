@@ -4,49 +4,50 @@ module NagiosPlugin
   describe Plugin do
     let(:plugin) { Plugin.new }
 
-    describe '#check!' do
+    describe '.check' do
       before do
-        plugin.stub(:puts                     => nil,
-                    :exit                     => nil,
-                    :nagios_plugin_exit_code  => nil,
+        plugin.stub(:nagios_plugin_exit_code  => nil,
                     :nagios_plugin_output     => nil)
+        Plugin.stub(:puts                     => nil,
+                    :exit                     => nil,
+                    :new                      => plugin)
       end
 
       it 'displays the plugin output on stdout' do
-        plugin.should_receive(:nagios_plugin_output).and_return('chunky bacon')
-        plugin.should_receive(:puts).with('chunky bacon')
-        plugin.check!
+        plugin.should_receive(:nagios_plugin_output).
+          and_return('chunky bacon')
+        Plugin.should_receive(:puts).with('chunky bacon')
+        Plugin.check
       end
 
       it 'exits with the status exit code' do
         plugin.should_receive(:nagios_plugin_exit_code).and_return(42)
-        plugin.should_receive(:exit).with(42)
-        plugin.check!
+        Plugin.should_receive(:exit).with(42)
+        Plugin.check
       end
 
       context 'when an exception was raised' do
         let(:exception) { StandardError.new }
 
         before do
-          plugin.stub(:nagios_plugin_output).and_return { raise }
+          Plugin.stub(:new).and_return { raise 'Oops!' }
         end
 
         it 'rescues the exception' do
-          expect { plugin.check! }.to_not raise_error
+          expect { Plugin.check }.to_not raise_error
         end
 
         it 'exits with exit code unknown' do
-          plugin.should_receive(:exit).with(3)
-          plugin.check!
+          Plugin.should_receive(:exit).with(3)
+          Plugin.check
         end
 
         it 'displays the exception and backtrace on stdout' do
-          plugin.stub(:nagios_plugin_output).and_return { raise 'Oops!' }
           StandardError.any_instance.stub(:backtrace).
             and_return('Chunky Bacon')
-          plugin.should_receive(:puts).
+          Plugin.should_receive(:puts).
             with("PLUGIN UNKNOWN: Oops!\n\nChunky Bacon")
-          plugin.check!
+          Plugin.check
         end
       end
     end

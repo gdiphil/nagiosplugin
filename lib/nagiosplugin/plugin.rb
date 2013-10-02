@@ -13,7 +13,8 @@ module NagiosPlugin
         puts plugin.nagios_plugin_output
         exit plugin.nagios_plugin_exit_code
       rescue => e
-        puts "PLUGIN UNKNOWN: #{e.to_s}\n\n#{e.backtrace}"
+        pretty_error = ([e.to_s, nil] + e.backtrace).join("\n")
+        puts "PLUGIN UNKNOWN: #{pretty_error}"
         exit NAGIOS_PLUGIN_EXIT_CODES[:unknown]
       end
     end

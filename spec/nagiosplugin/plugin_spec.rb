@@ -44,7 +44,7 @@ module NagiosPlugin
 
         it 'displays the exception and backtrace on stdout' do
           StandardError.any_instance.stub(:backtrace).
-            and_return('Chunky Bacon')
+            and_return(%w(Chunky Bacon))
           Plugin.should_receive(:puts).
             with("PLUGIN UNKNOWN: Oops!\n\nChunky Bacon")
           Plugin.check

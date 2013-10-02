@@ -46,7 +46,7 @@ module NagiosPlugin
           StandardError.any_instance.stub(:backtrace).
             and_return(%w(Chunky Bacon))
           Plugin.should_receive(:puts).
-            with("PLUGIN UNKNOWN: Oops!\n\nChunky Bacon")
+            with("PLUGIN UNKNOWN: Oops!\n\nChunky\nBacon")
           Plugin.check
         end
       end

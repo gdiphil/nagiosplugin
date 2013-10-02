@@ -1,14 +1,22 @@
 # NagiosPlugin
 
-The one [Nagios](http://www.nagios.org/) Plugin framework, forged in the
-fires of Mount Doom.
+The one Nagios Plugin framework, forged in the fires of Mount Doom.
 
-[![Build
-Status](https://secure.travis-ci.org/bjoernalbers/nagiosplugin.png)](http://travis-ci.org/bjoernalbers/nagiosplugin)
+[![Build Status](https://secure.travis-ci.org/bjoernalbers/nagiosplugin.png)](http://travis-ci.org/bjoernalbers/nagiosplugin)
 
-**NOTE: The API has changed since version 2.0 (see issue
-[#2](https://github.com/bjoernalbers/nagiosplugin/issues/2))!!!**
+**NOTE: The API has changed since version 2.1 (see issues
+[#2](https://github.com/bjoernalbers/nagiosplugin/issues/2)
+and
+[#4](https://github.com/bjoernalbers/nagiosplugin/issues/4))!!!**
 
+## Introduction
+
+NagiosPlugin is an
+[embarrassingly simple](https://github.com/bjoernalbers/nagiosplugin/blob/master/lib/nagiosplugin/plugin.rb)
+framework to write custom monitoring plugins for
+[Nagios](http://www.nagios.org/).
+It was born out of duplication, because all nagios plugins share some
+common behaviour...
 
 ## Installation
 
@@ -70,10 +78,10 @@ end
 
 ### Step 3: Perform the actual check.
 
-In your binary then call `check!` on your class and you're done:
+In your binary then call the build-in class method `check` and you're done:
 
 ```Ruby
-MyFancyPlugin.new.check!
+MyFancyPlugin.check
 ```
 
 This will output the check result and exits in compliance with the

@@ -27,7 +27,7 @@ Feature: NagiosPlugin Usage
         end
       end
 
-      FancyPlugin.new.check!
+      FancyPlugin.check
       """
     When I run `ruby check_fancy.rb`
     Then the exit status should be <code>

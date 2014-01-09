@@ -6,17 +6,14 @@ module NagiosPlugin
       :warning  => 1,
       :ok       => 0
     }
-
-    class << self
-      def check
-        plugin = new
-        puts plugin.nagios_plugin_output
-        exit plugin.nagios_plugin_exit_code
-      rescue => e
-        pretty_error = ([e.to_s, nil] + e.backtrace).join("\n")
-        puts "PLUGIN UNKNOWN: #{pretty_error}"
-        exit NAGIOS_PLUGIN_EXIT_CODES[:unknown]
-      end
+    
+    def check
+      puts nagios_plugin_output
+      exit nagios_plugin_exit_code
+    rescue => e
+      pretty_error = ([e.to_s, nil] + e.backtrace).join("\n")
+      puts "PLUGIN UNKNOWN: #{pretty_error}"
+      exit NAGIOS_PLUGIN_EXIT_CODES[:unknown]
     end
 
     def nagios_plugin_exit_code
